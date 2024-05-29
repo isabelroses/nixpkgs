@@ -1,6 +1,7 @@
 {
   lib,
   dbus,
+  pkgs,
   glib,
   vips,
   openssl,
@@ -8,12 +9,14 @@
   pkg-config,
   cargo-tauri,
   cairo,
+  callPackage,
+  stdenvNoCC,
   pngquant,
   rustPlatform,
   librsvg,
   wrapGAppsHook3,
   fetchFromGitHub,
-  buildNpmPackage,
+  nodePackages,
 }:
 let
   version = "8.0.0";
@@ -26,14 +29,26 @@ let
 
   sourceRoot = "${src.name}/src/catppuccinifier-gui";
 
-  frontend-build = buildNpmPackage {
-    pname = "catppuccinifier-ui";
+  nodeDependencies =
+    (callPackage ./composition.nix { inherit pkgs; }).nodeDependencies;
+
+    ."pngquant-bin-6.0.1".override
+      {
+        dontNpmInstall = true;
+        preRebuild = ''
+          ln -s ${pngquant}/bin/pngquant ./vendor/pngquant
+          npm run postinstall
+        '';
+      };
+
+  frontend-build = stdenvNoCC.mkDerivation {
+    pname = "catppuccinifier-gui-fe";
     inherit src sourceRoot version;
 
-    packageJSON = "${sourceRoot}/package.json";
-    npmDepsHash = "sha256-2YKrhZNAC+Z7TyxNkCMeXHb2zyGBiJTK1Z96hgoeWcI=";
-
-    nativeBuildInputs = [ pkg-config ];
+    nativeBuildInputs = [
+      pkg-config
+      nodePackages.npm
+    ];
 
     buildInputs = [
       cairo
@@ -44,25 +59,35 @@ let
 
     configurePhase = ''
       runHook preConfigure
-      ln -s $node_modules node_modules
-      ln -sf ${lib.getExe pngquant} node_modules/pngquant-bin
+
+      ln -s ${nodeDependencies}/lib/node_modules ./node_modules
+      export PATH="${nodeDependencies}/bin:$PATH"
+
       runHook postConfigure
     '';
 
     buildPhase = ''
-      export HOME=$(mktemp -d)
+      runHook preBuild
+
       npm run build
+
+      runHook postBuild
+    '';
+
+    installPhase = ''
+      runHook preInstall
 
       mkdir -p $out/dist
       cp -r dist/** $out/dist
+
+      runHook postInstall
     '';
 
-    distPhase = "true";
-    dontInstall = true;
+    doDist = false;
   };
 in
 rustPlatform.buildRustPackage {
-  pname = "catppuccinifier";
+  pname = "catppuccinifier-gui";
   inherit version src;
   sourceRoot = "${sourceRoot}/src-tauri";
 
@@ -86,12 +111,16 @@ rustPlatform.buildRustPackage {
     webkitgtk
   ];
 
-  postPatch = ''
+  preConfigure = ''
     mkdir -p dist
     cp -R ${frontend-build}/dist/** dist
+  '';
 
-    substituteInPlace ./tauri.conf.json --replace '"distDir": "../dist",' '"distDir": "dist",'
-    substituteInPlace ./tauri.conf.json --replace '"beforeBuildCommand": "npm run build",' '"beforeBuildCommand": "",'
+  postPatch = ''
+    substituteInPlace ./tauri.conf.json \
+      --replace-fail '"distDir": "../dist",' '"distDir": "dist",'
+    substituteInPlace ./tauri.conf.json \
+      --replace-fail '"beforeBuildCommand": "npm run build",' '"beforeBuildCommand": "",'
   '';
 
   buildPhase = ''
@@ -105,7 +134,8 @@ rustPlatform.buildRustPackage {
   installPhase = ''
     runHook preInstall
 
-    cp -r target/release/bundle/deb/*/data/usr "$out"
+    mkdir -p "$out/bin"
+    cp target/release/bundle/deb/*/data/usr/catppuccinifier-gui "$out/bin/catppuccinifier-gui"
 
     runHook postInstall
   '';
