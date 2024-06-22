@@ -6,23 +6,23 @@
 , python3
 , sassc
 , nix-update-script
-, accents ? [ "blue" ]
+, accents ? [ "mauve" ]
 , size ? "standard"
 , tweaks ? [ ]
-, variant ? "frappe"
+, flavor ? "macchiato"
 }:
 let
   validAccents = [ "blue" "flamingo" "green" "lavender" "maroon" "mauve" "peach" "pink" "red" "rosewater" "sapphire" "sky" "teal" "yellow" ];
   validSizes = [ "standard" "compact" ];
   validTweaks = [ "black" "rimless" "normal" "float" ];
-  validVariants = [ "latte" "frappe" "macchiato" "mocha" ];
+  validFlavor = [ "latte" "frappe" "macchiato" "mocha" ];
 
   pname = "catppuccin-gtk";
   version = "1.0.3";
 in
 
 lib.checkListOfEnum "${pname}: theme accent" validAccents accents
-lib.checkListOfEnum "${pname}: color variant" validVariants [variant]
+lib.checkListOfEnum "${pname}: theme flavor" validFlavor [flavor]
 lib.checkListOfEnum "${pname}: size variant" validSizes [size]
 lib.checkListOfEnum "${pname}: tweaks" validTweaks tweaks
 
@@ -54,7 +54,7 @@ stdenvNoCC.mkDerivation {
 
     mkdir -p $out/share/themes
 
-    python3 build.py ${variant} \
+    python3 build.py ${flavor} \
       --accent ${builtins.toString accents} \
       ${lib.optionalString (size != [ ]) "--size " + size} \
       ${lib.optionalString (tweaks != [ ]) "--tweaks " + builtins.toString tweaks} \
