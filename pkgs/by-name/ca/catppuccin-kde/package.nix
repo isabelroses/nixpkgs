@@ -2,30 +2,32 @@
 , stdenvNoCC
 , fetchFromGitHub
 , fetchpatch
-, flavour ? [ "frappe" ]
-, accents ? [ "blue" ]
+, flavor ? [ "mocha" ]
+, accents ? [ "mauve" ]
 , winDecStyles ? [ "modern" ]
 }:
 
 let
-  validFlavours = [ "mocha" "macchiato" "frappe" "latte" ];
+  validFlavors = [ "mocha" "macchiato" "frappe" "latte" ];
   validAccents = [ "rosewater" "flamingo" "pink" "mauve" "red" "maroon" "peach" "yellow" "green" "teal" "sky" "sapphire" "blue" "lavender" ];
   validWinDecStyles = [ "modern" "classic" ];
 
   colorScript = ./color.sh;
+
+  version = "0.2.6";
 in
 
   lib.checkListOfEnum "Invalid accent, valid accents are ${toString validAccents}" validAccents accents
-  lib.checkListOfEnum "Invalid flavour, valid flavours are ${toString validFlavours}" validFlavours flavour
+  lib.checkListOfEnum "Invalid flavor, valid flavors are ${toString validFlavors}" validFlavors flavor
   lib.checkListOfEnum "Invalid window decoration style, valid styles are ${toString validWinDecStyles}" validWinDecStyles winDecStyles
 
-stdenvNoCC.mkDerivation rec {
+stdenvNoCC.mkDerivation {
   pname = "kde";
-  version = "0.2.6";
+  inherit version;
 
   src = fetchFromGitHub {
     owner = "catppuccin";
-    repo = pname;
+    repo = "kde";
     rev = "v${version}";
     hash = "sha256-pfG0L4eSXLYLZM8Mhla4yalpEro74S9kc0sOmQtnG3w=";
   };
@@ -42,10 +44,10 @@ stdenvNoCC.mkDerivation rec {
     patchShebangs .
 
     for WINDECSTYLE in ${toString winDecStyles}; do
-      for FLAVOUR in ${toString flavour}; do
+      for FLAVOR in ${toString flavor}; do
         for ACCENT in ${toString accents}; do
           source ${colorScript}
-          ./install.sh $FLAVOUR $ACCENT $WINDECSTYLE
+          ./install.sh $FLAVOR $ACCENT $WINDECSTYLE
         done;
       done;
     done;
@@ -53,10 +55,10 @@ stdenvNoCC.mkDerivation rec {
     runHook postInstall
   '';
 
-  meta = with lib; {
+  meta = {
     description = "Soothing pastel theme for KDE";
     homepage = "https://github.com/catppuccin/kde";
-    license = licenses.mit;
-    maintainers = with maintainers; [ michaelBelsanti gigglesquid ];
+    license = lib.licenses.mit;
+    maintainers = with lib.maintainers; [ michaelBelsanti gigglesquid ];
   };
 }
