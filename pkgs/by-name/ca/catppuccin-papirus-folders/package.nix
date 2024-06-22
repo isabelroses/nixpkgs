@@ -4,8 +4,8 @@
   fetchFromGitHub,
   gtk3,
   papirus-icon-theme,
-  flavor ? "mocha",
-  accent ? "blue"
+  flavor ? "macchiato",
+  accent ? "mauve"
 }: let
   validAccents = ["blue" "flamingo" "green" "lavender" "maroon" "mauve" "peach" "pink" "red" "rosewater" "sapphire" "sky" "teal" "yellow"];
   validFlavors = ["latte" "frappe" "macchiato" "mocha"];
@@ -44,11 +44,11 @@ in
       runHook postInstall
     '';
 
-    meta = with lib; {
+    meta = {
       description = "Soothing pastel theme for Papirus Icon Theme folders";
       homepage = "https://github.com/catppuccin/papirus-folders";
-      license = licenses.mit;
-      platforms = platforms.linux;
-      maintainers = with maintainers; [ rubyowo ];
+      license = lib.licenses.mit;
+      platforms = lib.platforms.linux;
+      maintainers = with lib.maintainers; [ rubyowo ];
     };
   }
