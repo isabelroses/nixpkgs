@@ -4,15 +4,15 @@ in
 { fetchFromGitHub
 , lib
 , stdenvNoCC
-, accent ? "blue"
-, variant ? "macchiato"
+, accent ? "mauve"
+, flavor ? "macchiato"
 , themeList ? validThemes
 }:
 let
   pname = "catppuccin";
 
   validAccents = [ "rosewater" "flamingo" "pink" "mauve" "red" "maroon" "peach" "yellow" "green" "teal" "sky" "sapphire" "blue" "lavender" ];
-  validVariants = [ "latte" "frappe" "macchiato" "mocha" ];
+  validFlavors = [ "latte" "frappe" "macchiato" "mocha" ];
 
   selectedSources = map (themeName: builtins.getAttr themeName sources) themeList;
   sources = {
@@ -145,7 +145,7 @@ let
     };
   };
 in
-lib.checkListOfEnum "${pname}: variant" validVariants [ variant ]
+lib.checkListOfEnum "${pname}: flavor" validFlavor [ flavor ]
 lib.checkListOfEnum "${pname}: accent" validAccents [ accent ]
 lib.checkListOfEnum "${pname}: themes" validThemes themeList
 
@@ -165,51 +165,51 @@ stdenvNoCC.mkDerivation {
   installPhase = ''
     runHook preInstall
 
-    local capitalizedVariant=$(sed 's/^\(.\)/\U\1/' <<< "${variant}")
+    local capitalizedFlavor=$(sed 's/^\(.\)/\U\1/' <<< "${flavor}")
     local capitalizedAccent=$(sed 's/^\(.\)/\U\1/' <<< "${accent}")
 
   '' + lib.optionalString (lib.elem "bat" themeList) ''
     mkdir -p $out/bat
-    cp "${sources.bat}/themes/Catppuccin "$capitalizedVariant".tmTheme" "$out/bat/"
+    cp "${sources.bat}/themes/Catppuccin "$capitalizedFlavor".tmTheme" "$out/bat/"
 
   '' + lib.optionalString (lib.elem "btop" themeList) ''
     mkdir -p $out/btop
-    cp "${sources.btop}/themes/catppuccin_${variant}.theme" "$out/btop/"
+    cp "${sources.btop}/themes/catppuccin_${flavor}.theme" "$out/btop/"
 
   '' + lib.optionalString (lib.elem "bottom" themeList) ''
     mkdir -p $out/bottom
-    cp "${sources.bottom}/themes/${variant}.toml" "$out/bottom/"
+    cp "${sources.bottom}/themes/${flavor}.toml" "$out/bottom/"
 
   '' + lib.optionalString (lib.elem "grub" themeList) ''
     mkdir -p $out/grub
-    cp -r ${sources.grub}/src/catppuccin-${variant}-grub-theme/* "$out/grub/"
+    cp -r ${sources.grub}/src/catppuccin-${flavor}-grub-theme/* "$out/grub/"
 
   '' + lib.optionalString (lib.elem "hyprland" themeList) ''
     mkdir -p $out/hyprland
-    cp "${sources.hyprland}/themes/${variant}.conf" "$out/hyprland/"
+    cp "${sources.hyprland}/themes/${flavor}.conf" "$out/hyprland/"
 
   '' + lib.optionalString (lib.elem "k9s" themeList) ''
     mkdir -p $out/k9s
-    cp "${sources.k9s}/dist/catppuccin-${variant}.yaml" "$out/k9s/"
-    cp "${sources.k9s}/dist/catppuccin-${variant}-transparent.yaml" "$out/k9s/"
+    cp "${sources.k9s}/dist/catppuccin-${flavor}.yaml" "$out/k9s/"
+    cp "${sources.k9s}/dist/catppuccin-${flavor}-transparent.yaml" "$out/k9s/"
 
   '' + lib.optionalString (lib.elem "kvantum" themeList) ''
     mkdir -p $out/share/Kvantum
-    cp -r ${sources.kvantum}/src/Catppuccin-"$capitalizedVariant"-"$capitalizedAccent" $out/share/Kvantum
+    cp -r ${sources.kvantum}/src/Catppuccin-"$capitalizedFlavor"-"$capitalizedAccent" $out/share/Kvantum
 
   '' + lib.optionalString (lib.elem "lazygit" themeList) ''
     mkdir -p $out/lazygit/{themes,themes-mergable}
-    cp "${sources.lazygit}/themes/${variant}/${accent}.yml" "$out/lazygit/themes/"
-    cp "${sources.lazygit}/themes-mergable/${variant}/${accent}.yml" "$out/lazygit/themes-mergable/"
+    cp "${sources.lazygit}/themes/${flavor}/${accent}.yml" "$out/lazygit/themes/"
+    cp "${sources.lazygit}/themes-mergable/${flavor}/${accent}.yml" "$out/lazygit/themes-mergable/"
 
   '' + lib.optionalString (lib.elem "lxqt" themeList) ''
-    mkdir -p $out/share/lxqt/themes/catppuccin-${variant}
-    cp -r ${sources.lxqt}/src/catppuccin-${variant}/* $out/share/lxqt/themes/catppuccin-${variant}/
+    mkdir -p $out/share/lxqt/themes/catppuccin-${flavor}
+    cp -r ${sources.lxqt}/src/catppuccin-${variant}/* $out/share/lxqt/themes/catppuccin-${flavor}/
 
   '' + lib.optionalString (lib.elem "plymouth" themeList) ''
-    mkdir -p $out/share/plymouth/themes/catppuccin-${variant}
-    cp ${sources.plymouth}/themes/catppuccin-${variant}/* $out/share/plymouth/themes/catppuccin-${variant}
-    sed -i 's:\(^ImageDir=\)/usr:\1'"$out"':' $out/share/plymouth/themes/catppuccin-${variant}/catppuccin-${variant}.plymouth
+    mkdir -p $out/share/plymouth/themes/catppuccin-${flavor}
+    cp ${sources.plymouth}/themes/catppuccin-${flavor}/* $out/share/plymouth/themes/catppuccin-${flavor}
+    sed -i 's:\(^ImageDir=\)/usr:\1'"$out"':' $out/share/plymouth/themes/catppuccin-${flavor}/catppuccin-${flavor}.plymouth
 
   '' + lib.optionalString (lib.elem "qt5ct" themeList) ''
     mkdir -p $out/qt5ct
@@ -217,24 +217,24 @@ stdenvNoCC.mkDerivation {
 
   '' + lib.optionalString (lib.elem "rofi" themeList) ''
     mkdir -p $out/rofi
-    cp ${sources.rofi}/basic/.local/share/rofi/themes/catppuccin-${variant}.rasi $out/rofi/
+    cp ${sources.rofi}/basic/.local/share/rofi/themes/catppuccin-${flavor}.rasi $out/rofi/
 
   '' + lib.optionalString (lib.elem "refind" themeList) ''
     mkdir -p $out/refind/assets
-    cp ${sources.refind}/${variant}.conf $out/refind/
-    cp -r ${sources.refind}/assets/${variant} $out/refind/assets/
+    cp ${sources.refind}/${flavor}.conf $out/refind/
+    cp -r ${sources.refind}/assets/${flavor} $out/refind/assets/
 
   '' + lib.optionalString (lib.elem "starship" themeList) ''
     mkdir -p $out/starship
-    cp ${sources.starship}/palettes/${variant}.toml $out/starship/
+    cp ${sources.starship}/palettes/${flavor}.toml $out/starship/
 
   '' + lib.optionalString (lib.elem "thunderbird" themeList) ''
     mkdir -p $out/thunderbird
-    cp ${sources.thunderbird}/themes/${variant}/${variant}-${accent}.xpi $out/thunderbird/
+    cp ${sources.thunderbird}/themes/${flavor}/${flavor}-${accent}.xpi $out/thunderbird/
 
   '' + lib.optionalString (lib.elem "waybar" themeList) ''
     mkdir -p $out/waybar
-    cp ${sources.waybar}/${variant}.css $out/waybar/
+    cp ${sources.waybar}/${flavor}.css $out/waybar/
 
   '' + ''
     runHook postInstall
