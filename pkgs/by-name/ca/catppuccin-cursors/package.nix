@@ -2,20 +2,18 @@
 , stdenvNoCC
 , fetchFromGitHub
 , inkscape
-, just
 , xcursorgen
 , hyprcursor
+, flavor ? "macchiato"
+, accents ? [ "mauve" ]
 }:
-
 let
-  dimensions = {
-    palette = [ "frappe" "latte" "macchiato" "mocha" ];
-    color = [ "Blue" "Dark" "Flamingo" "Green" "Lavender" "Light" "Maroon" "Mauve" "Peach" "Pink" "Red" "Rosewater" "Sapphire" "Sky" "Teal" "Yellow" ];
-  };
-  variantName = { palette, color }: palette + color;
-  variants = lib.mapCartesianProduct variantName dimensions;
   version = "0.3.0";
 in
+
+lib.checkListOfEnum "${pname}: theme accent" validAccents accents
+lib.checkListOfEnum "${pname}: theme flavor" validFlavor [flavor]
+
 stdenvNoCC.mkDerivation {
   pname = "catppuccin-cursors";
   inherit version;
@@ -27,9 +25,7 @@ stdenvNoCC.mkDerivation {
     hash = "sha256-LJyBnXDUGBLOD4qPI7l0YC0CcqYTtgoMJc1H2yLqk9g=";
   };
 
-  nativeBuildInputs = [ just inkscape xcursorgen hyprcursor ];
-
-  outputs = variants ++ [ "out" ]; # dummy "out" output to prevent breakage
+  nativeBuildInputs = [ inkscape xcursorgen hyprcursor ];
 
   outputsToInstall = [];
 
@@ -38,7 +34,7 @@ stdenvNoCC.mkDerivation {
 
     patchShebangs .
 
-    just all_with_hyprcursor
+    ./build -f ${flavor} -a ${builtins.toString accents} -h
 
     runHook postBuild
   '';
@@ -46,23 +42,10 @@ stdenvNoCC.mkDerivation {
   installPhase = ''
     runHook preInstall
 
-    for output in $(getAllOutputNames); do
-      if [ "$output" != "out" ]; then
-        local outputDir="''${!output}"
-        local iconsDir="$outputDir"/share/icons
-
-        mkdir -p "$iconsDir"
-
-        # Convert to kebab case with the first letter of each word capitalized
-        local variant=$(sed 's/\([A-Z]\)/-\1/g' <<< "$output")
-        local variant=''${variant,,}
-
-        mv "dist/catppuccin-$variant-cursors" "$iconsDir"
-      fi
+    for accent in ${builtins.toString accents}
+    do
+      mv "dist/catppuccin-${flavor}-$accent-cursors" "$out/share/icons"
     done
-
-    # Needed to prevent breakage
-    mkdir -p "$out"
 
     runHook postInstall
   '';
