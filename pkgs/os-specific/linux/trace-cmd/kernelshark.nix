@@ -17,7 +17,6 @@
   freefont_ttf,
   wrapQtAppsHook,
   qtwayland,
-  fetchpatch,
 }:
 
 stdenv.mkDerivation (finalAttrs: {

@@ -2,7 +2,6 @@
   lib,
   duckstation,
   fetchFromGitHub,
-  fetchpatch,
   shaderc,
   spirv-cross,
   discord-rpc,

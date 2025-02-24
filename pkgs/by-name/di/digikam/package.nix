@@ -4,7 +4,6 @@
   lib,
   fetchFromGitLab,
   fetchgit,
-  fetchpatch,
 
   cmake,
   ninja,

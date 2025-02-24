@@ -1,7 +1,6 @@
 {
   blas,
   fetchzip,
-  fetchpatch,
   gfortran,
   lapack,
   lib,

@@ -1,7 +1,6 @@
 {
   stdenv,
   lib,
-  fetchpatch,
   fetchpatch2,
   perl,
   fetchurl,
