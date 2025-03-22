@@ -3,14 +3,9 @@
   fetchFromGitHub,
   buildGoModule,
 }:
-let
-  version = "1.12.0";
-in
-buildGoModule {
+buildGoModule (finalAttrs: {
   pname = "gotestsum";
-
-  # move back to stable releases when build is successful
-  version = "${version}-unstable-2024-09-17";
+  version = "1.12.1";
 
   src = fetchFromGitHub {
     owner = "gotestyourself";
@@ -26,18 +21,18 @@ buildGoModule {
   ldflags = [
     "-s"
     "-w"
-    "-X gotest.tools/gotestsum/cmd.version=${version}"
+    "-X gotest.tools/gotestsum/cmd.version=${finalAttrs.version}"
   ];
 
   subPackages = [ "." ];
 
   meta = {
     homepage = "https://github.com/gotestyourself/gotestsum";
-    changelog = "https://github.com/gotestyourself/gotestsum/releases/tag/v${version}";
+    changelog = "https://github.com/gotestyourself/gotestsum/releases/tag/v${finalAttrs.version}";
     description = "Human friendly `go test` runner";
     mainProgram = "gotestsum";
     platforms = with lib.platforms; linux ++ darwin;
     license = lib.licenses.asl20;
     maintainers = with lib.maintainers; [ isabelroses ];
   };
-}
+})
