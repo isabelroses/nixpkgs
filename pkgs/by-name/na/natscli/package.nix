@@ -6,21 +6,21 @@
   nix-update-script,
 }:
 
-buildGoModule rec {
+buildGoModule (finalAttrs: {
   pname = "natscli";
   version = "0.2.0";
 
   src = fetchFromGitHub {
     owner = "nats-io";
     repo = "natscli";
-    tag = "v${version}";
+    tag = "v${finalAttrs.version}";
     hash = "sha256-Ya3nNgPa9MEiDDwoBv8oXi7+Hji9fhUNIm55jJ6w++8=";
   };
 
   vendorHash = "sha256-NLsIX0B2YKGNWeAuKIQUs/2sXokUr6PYO5qvvfbbN1Y=";
 
   ldflags = [
-    "-X main.version=${version}"
+    "-X main.version=${finalAttrs.version}"
   ];
 
   nativeInstallCheckInputs = [ versionCheckHook ];
@@ -32,9 +32,9 @@ buildGoModule rec {
   meta = with lib; {
     description = "NATS Command Line Interface";
     homepage = "https://github.com/nats-io/natscli";
-    changelog = "https://github.com/nats-io/natscli/releases/tag/v${version}";
+    changelog = "https://github.com/nats-io/natscli/releases/tag/v${finalAttrs.version}";
     license = with licenses; [ asl20 ];
     maintainers = with maintainers; [ fab ];
     mainProgram = "nats";
   };
-}
+})
