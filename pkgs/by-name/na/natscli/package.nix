@@ -3,6 +3,7 @@
   buildGoModule,
   fetchFromGitHub,
   versionCheckHook,
+  nix-update-script,
 }:
 
 buildGoModule rec {
@@ -25,6 +26,8 @@ buildGoModule rec {
   nativeInstallCheckInputs = [ versionCheckHook ];
   doInstallCheck = true;
   versionCheckProgram = "${placeholder "out"}/bin/nats";
+
+  passthru.updateScript = nix-update-script { };
 
   meta = with lib; {
     description = "NATS Command Line Interface";
