@@ -10,20 +10,19 @@
   buildPackages,
   installShellFiles,
 }:
-
 let
   canRunCmd = stdenv.hostPlatform.emulatorAvailable buildPackages;
   gix = "${stdenv.hostPlatform.emulator buildPackages} $out/bin/gix";
   ein = "${stdenv.hostPlatform.emulator buildPackages} $out/bin/ein";
 in
-rustPlatform.buildRustPackage rec {
+rustPlatform.buildRustPackage (finalAttrs: {
   pname = "gitoxide";
   version = "0.41.0";
 
   src = fetchFromGitHub {
     owner = "Byron";
     repo = "gitoxide";
-    rev = "v${version}";
+    rev = "v${finalAttrs.version}";
     hash = "sha256-QO2XGgbHY8NQvPveVJdLsEuknEdLUsf/HLHHd8Z6qGw=";
   };
 
@@ -56,11 +55,11 @@ rustPlatform.buildRustPackage rec {
   meta = with lib; {
     description = "Command-line application for interacting with git repositories";
     homepage = "https://github.com/Byron/gitoxide";
-    changelog = "https://github.com/Byron/gitoxide/blob/v${version}/CHANGELOG.md";
+    changelog = "https://github.com/Byron/gitoxide/blob/v${finalAttrs.version}/CHANGELOG.md";
     license = with licenses; [
       mit # or
       asl20
     ];
     maintainers = with maintainers; [ syberant ];
   };
-}
+})
