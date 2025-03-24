@@ -1197,8 +1197,6 @@ with pkgs;
 
   gita = python3Packages.callPackage ../applications/version-management/gita { };
 
-  gitoxide = callPackage ../applications/version-management/gitoxide { };
-
   github-cli = gh;
 
   git-absorb = callPackage ../applications/version-management/git-absorb { };
