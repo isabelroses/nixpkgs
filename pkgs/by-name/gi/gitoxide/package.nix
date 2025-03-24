@@ -20,7 +20,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
   version = "0.41.0";
 
   src = fetchFromGitHub {
-    owner = "Byron";
+    owner = "GitoxideLabs";
     repo = "gitoxide";
     rev = "v${finalAttrs.version}";
     hash = "sha256-QO2XGgbHY8NQvPveVJdLsEuknEdLUsf/HLHHd8Z6qGw=";
@@ -54,8 +54,8 @@ rustPlatform.buildRustPackage (finalAttrs: {
 
   meta = {
     description = "Command-line application for interacting with git repositories";
-    homepage = "https://github.com/Byron/gitoxide";
-    changelog = "https://github.com/Byron/gitoxide/blob/v${finalAttrs.version}/CHANGELOG.md";
+    homepage = "https://github.com/GitoxideLabs/gitoxide";
+    changelog = "https://github.com/GitoxideLabs/gitoxide/blob/v${finalAttrs.version}/CHANGELOG.md";
     license = with lib.licenses; [
       mit # or
       asl20
